@@ -1,4 +1,7 @@
+from datetime import datetime
+
 def otc_arg_parser():
+
     import argparse
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -21,7 +24,7 @@ def otc_arg_parser():
         help='retro mode parameter for the env')
     parser.add_argument(
         '--realtime',
-        default=True,#False
+        default=False,#True
         help='realtime mode parameter for the env')
     parser.add_argument(
         '--lr',
@@ -116,7 +119,7 @@ def otc_arg_parser():
     parser.add_argument(
         '--log-interval',
         type=int,
-        default=1,
+        default=10,
         help='log interval, one log per n updates (default: 10)')
     parser.add_argument(
         '--save-interval',
@@ -127,7 +130,7 @@ def otc_arg_parser():
     parser.add_argument(
         '--eval-interval',
         type=int,
-        default=None,
+        default=10000,
         help='eval interval, one eval per n updates (default: None)')
     parser.add_argument(
         '--num-env-steps',
@@ -140,11 +143,11 @@ def otc_arg_parser():
         help='environment to train on (default: PongNoFrameskip-v4)')
     parser.add_argument(
         '--log-dir',
-        default='./summaries',
+        default='./results/',
         help='directory to save agent logs (default: /tmp/gym)')
     parser.add_argument(
         '--save-dir',
-        default='./models/',
+        default='./trained_models/',
         help='directory to save agent logs (default: ./trained_models/)')
     parser.add_argument(
         '--no-cuda',
@@ -168,12 +171,29 @@ def otc_arg_parser():
         default=False,
         # default=True,
         help='use a linear schedule on the learning rate')
+    parser.add_argument(
+        '--tensorboard-logdir',
+        default = "./results/tensorboard/logs_tensorboard" + datetime.now().strftime("%B-%d-%Y_%H_%M%p"),
+        help = 'dir of the tensorboard logs'
+    )
+    parser.add_argument(
+        '--results-dir',
+        default="./results/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p"),
+        help="dir of the results evaluation logs")
+
+    parser.add_argument(
+        '--training-name',
+        default="ppo_v3",
+        help="name of the training saved file"
+    )
 
     parser.add_argument(
         '--policy',
         help='Policy architecture',
         choices=['cnn', 'lstm', 'lnlstm', 'mlp'],
         default='lnlstm')
+
+
 
     # parser.add_argument('--lbda', type=float, default=0.95)
     # parser.add_argument('--gamma', type=float, default=0.96)  # 0.99
@@ -216,3 +236,35 @@ def otc_arg_parser():
     parser.add_argument('--half_precision', action='store_true')
 
     return parser
+
+def evaluate(model, num_steps=1000):
+    """
+    Evaluate a RL agent
+    :param model: (BaseRLModel object) the RL Agent
+    :param num_steps: (int) number of timesteps to evaluate it
+    :return: (float) Mean reward for the last 100 episodes
+    """
+
+    episode_rewards = [0.0]
+    obs = env.reset()
+    for i in range(num_steps):
+        # _states are only useful when using LSTM policies
+        action, _states = model.predict(obs)
+        # here, action, rewards and dones are arrays
+        # because we are using vectorized env
+        obs, rewards, dones, info = env.step(action)
+
+        # Stats
+        episode_rewards[-1] += rewards[0]
+        if dones[0]:
+            obs = env.reset()
+            episode_rewards.append(0.0)
+
+    # Compute mean reward for the last 100 episodes
+    mean_100ep_reward = round(np.mean(episode_rewards[-100:]), 1)
+    print("Mean reward:", mean_100ep_reward, "Num episodes:", len(episode_rewards))
+
+    return mean_100ep_reward
+
+def log(s):
+    print('[' + str(datetime.now().strftime('%Y-%m-%dT%H:%M:%S')) + '] ' + s)

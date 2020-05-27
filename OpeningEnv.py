@@ -44,7 +44,7 @@ if not TEST_ONLY:
 else:
     global_path = RESULTS_PATH + "_" + TRAINING_NAME + "_test" + "/"
 
-os.makedirs(global_path, exist_ok=True)
+os.makedirs(global_path, exist_ok=True)/
 
 # Copy file to results directory
 if PRETRAINED_MODEL:
@@ -192,7 +192,7 @@ while (t < TOTAL_TRAINING_STEPS):
     if not TEST_ONLY:
         # Train model
         if (t == 0):
-            model.learn(total_timesteps=TRAINING_INTERVAL_STEPS)
+            model.learn(total_timesteps=TRAINING_INTERVAL_STEPS, tensorboard_log='./tensorboard-logs')
         else:
             model.learn(total_timesteps=TRAINING_INTERVAL_STEPS, reset_num_timesteps=False)
 

@@ -26,8 +26,8 @@ class OTCPreprocessing(gym.Wrapper):
 
         if action_reduction:
                 # Reduction of the action space dimensionality wit only 8 basic possible movements
-                self.actions = {
-                    0: [0, 0, 0, 0],  # nopgit c
+                """self.actions = {
+                    0: [0, 0, 0, 0],  # nop
                     18: [1, 0, 0, 0],  # forward
                     36: [2, 0, 0, 0],  # backward
                     6: [0, 1, 0, 0],  # cam left
@@ -35,6 +35,17 @@ class OTCPreprocessing(gym.Wrapper):
                     21: [1, 0, 1, 0],  # jump forward
                     24: [1, 1, 0, 0],  # forward + cam left
                     30: [1, 2, 0, 0]  # forward + cam right
+                }"""
+
+                self.actions = {
+                    0: [0, 0, 0, 0],  # nop
+                    1: [1, 0, 0, 0],  # forward
+                    2: [2, 0, 0, 0],  # backward
+                    3: [0, 1, 0, 0],  # cam left
+                    4: [0, 2, 0, 0],  # cam right
+                    5: [1, 0, 1, 0],  # jump forward
+                    6: [1, 1, 0, 0],  # forward + cam left
+                    7: [1, 2, 0, 0]  # forward + cam right
                 }
 
 
@@ -124,8 +135,8 @@ class OTCPreprocessing(gym.Wrapper):
             action = self.actions[actionInput[0]]
         else:
             action = self.actions[actionInput]
-        print('action : ', action)
-        print('actionInput : ', actionInput)
+        #print('action : ', action)
+        #print('actionInput : ', actionInput)
 
         observation, reward, game_over, info = self.env.step(actionInput)
         self.game_over = game_over
