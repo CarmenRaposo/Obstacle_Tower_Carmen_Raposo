@@ -16,7 +16,7 @@ def test(T, model, evaluate=False, realtime=True, env=None):
 
     global Ts, rewards, best_avg_reward
 
-    own_env = False
+    evaluation_episodes = 10
 
     Ts.append(T)
     T_rewards = []
@@ -24,7 +24,7 @@ def test(T, model, evaluate=False, realtime=True, env=None):
 
     # Test performance over several episodes
     done = True
-    for _ in range(args.evaluation_episodes):
+    for _ in range(evaluation_episodes):
         while True:
             if done:
                 state = env.reset()
@@ -38,20 +38,14 @@ def test(T, model, evaluate=False, realtime=True, env=None):
             if reward > 0.99:
                 floors_sum += 1
 
-            if args.render:
-                env.render()
-
             if done:
                 T_rewards.append(reward_sum)
                 T_floors.append(floors_sum)
                 break
 
-    if own_env:
-        env.close()
-
-
     avg_reward = sum(T_rewards) / len(T_rewards)
     avg_floor = sum(T_floors) / len(T_floors)
+
     if not evaluate:
         # Append to results
         rewards.append(T_rewards)

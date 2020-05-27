@@ -178,7 +178,7 @@ def otc_arg_parser():
     )
     parser.add_argument(
         '--results-dir',
-        default="./results/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p"),
+        default="./results/model/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p"),
         help="dir of the results evaluation logs")
 
     parser.add_argument(

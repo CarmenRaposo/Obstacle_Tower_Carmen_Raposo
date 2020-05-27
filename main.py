@@ -67,7 +67,7 @@ def main():
         model.save(global_path + args.training_name + "_" + str(int(t)).zfill(10))
 
         avg_reward, avg_floor = test(t, model, env=env)  # Test
-        log('T = ' + str(t) + ' / ' + str(args.T_max) + ' | Avg. reward: ' + str(
+        log('T = ' + str(t) + ' / ' + str(args.num_env_steps) + ' | Avg. reward: ' + str(
             avg_reward) + ' | Avg. floor: ' + str(avg_floor))
 
         t += args.eval_interval
