@@ -4,6 +4,7 @@ from plotly.graph_objs import Scatter
 from plotly.graph_objs.scatter import Line
 import torch
 import numpy as np
+from constants import *
 
 
 # Globals
@@ -12,7 +13,7 @@ Ts, rewards, floors, best_avg_reward = [], [], [], -1e10
 
 
 # Test
-def test(T, model, evaluate=False, realtime=True, env=None):
+def test(T, model, global_path, evaluate=False, realtime=True, env=None):
 
     global Ts, rewards, best_avg_reward
 
@@ -58,7 +59,7 @@ def test(T, model, evaluate=False, realtime=True, env=None):
         # Save model parameters if improved
         if avg_reward > best_avg_reward:
             best_avg_reward = avg_reward
-            model.save('results')
+            model.save(global_path + args.training_name + "_bestmodel")
 
     # Return average reward and floor
     return avg_reward, avg_floor

@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import os
 from datetime import datetime
-import dopamine
+#import dopamine
 import tensorflow as tf
 from shutil import copyfile
 import time as t
@@ -44,7 +44,7 @@ if not TEST_ONLY:
 else:
     global_path = RESULTS_PATH + "_" + TRAINING_NAME + "_test" + "/"
 
-os.makedirs(global_path, exist_ok=True)/
+os.makedirs(global_path, exist_ok=True)
 
 # Copy file to results directory
 if PRETRAINED_MODEL:

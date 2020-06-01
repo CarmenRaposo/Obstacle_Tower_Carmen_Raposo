@@ -42,7 +42,7 @@ def otc_arg_parser():
         '--alpha',
         type=float,
         default=0.99,
-        help='RMSprop optimizer apha (default: 0.99)')
+        help='RMSprop optimizer alpha (default: 0.99)')
     parser.add_argument(
         '--gamma',
         type=float,
@@ -52,7 +52,7 @@ def otc_arg_parser():
     parser.add_argument(
         '--use-gae',
         action='store_true',
-        default=True, # False,
+        default=True,# False,
         help='use generalized advantage estimation')
     parser.add_argument(
         '--gae-lambda',
@@ -62,13 +62,13 @@ def otc_arg_parser():
     parser.add_argument(
         '--entropy-coef',
         type=float,
-        # default=0.01,
-        default=0.001,
+        default=0.01,
+        #default=0.001,
         help='entropy term coefficient (default: 0.01)')
     parser.add_argument(
         '--value-loss-coef',
         type=float,
-        default =0.5,
+        default=0.5,
         # default=1.,
         help='value loss coefficient (default: 0.5)')
     parser.add_argument(
@@ -86,8 +86,8 @@ def otc_arg_parser():
     parser.add_argument(
         '--num-processes',
         type=int,
-        # default=16,
-        default=32, # 16,
+        default=16,
+        #default=32, # 16,
         help='how many training CPU processes to use (default: 16)')
     parser.add_argument(
         '--num-steps',
@@ -101,7 +101,7 @@ def otc_arg_parser():
         '--ppo-epoch',
         type=int,
         # default=4,
-        default=8,
+        default=1,
         # default=3,
         help='number of ppo epochs (default: 4)')
     parser.add_argument(
@@ -143,7 +143,7 @@ def otc_arg_parser():
         help='environment to train on (default: PongNoFrameskip-v4)')
     parser.add_argument(
         '--log-dir',
-        default='./results/',
+        default='./results/' + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + '/',
         help='directory to save agent logs (default: /tmp/gym)')
     parser.add_argument(
         '--save-dir',
@@ -162,7 +162,7 @@ def otc_arg_parser():
     parser.add_argument(
         '--recurrent-policy',
         action='store_true',
-        default=True, # False,
+        default=True,# False,
         # default=False,
         help='use a recurrent policy')
     parser.add_argument(
@@ -173,12 +173,12 @@ def otc_arg_parser():
         help='use a linear schedule on the learning rate')
     parser.add_argument(
         '--tensorboard-logdir',
-        default = "./results/tensorboard/logs_tensorboard" + datetime.now().strftime("%B-%d-%Y_%H_%M%p"),
+        default="./results/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/tensorboard/logs_tensorboard",
         help = 'dir of the tensorboard logs'
     )
     parser.add_argument(
         '--results-dir',
-        default="./results/model/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p"),
+        default="./results/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/model/",
         help="dir of the results evaluation logs")
 
     parser.add_argument(
@@ -193,49 +193,57 @@ def otc_arg_parser():
         choices=['cnn', 'lstm', 'lnlstm', 'mlp'],
         default='lnlstm')
 
-
-
-    # parser.add_argument('--lbda', type=float, default=0.95)
-    # parser.add_argument('--gamma', type=float, default=0.96)  # 0.99
-    # parser.add_argument('--nminibatches', type=int, default=8)
-    # parser.add_argument('--norm_adv', type=int, default=1)
-    # parser.add_argument('--norm_rew', type=int, default=0)
-    # parser.add_argument(
-    #     '--lr', type=float, default=1e-4)  # lambda f: f * 2.5e-4,
-    # parser.add_argument('--ent_coeff', type=float, default=0.001)
-    # parser.add_argument('--nepochs', type=int, default=8)
-    parser.add_argument('--nsteps_per_seg', type=int, default=512)
-    parser.add_argument('--num_practice_agents', type=int, default=0)
-    # parser.add_argument('--num_timesteps', type=int, default=int(1e7))
-
-    # parser.add_argument('--env', help='environment ID', default='ObtRetro-v4')
-    # parser.add_argument('--seed', help='RNG seed', type=int, default=0)
     parser.add_argument(
-        'environment_filename',
-        default='../../../ObstacleTower/obstacletower',
-        nargs='?')
-    # parser.add_argument('--envs_per_process', type=int, default=8)
-    parser.add_argument('--real_time', action='store_true')
-    parser.add_argument('--score', type=bool, default=False)
-    parser.add_argument('--docker_training', action='store_true')
-    parser.set_defaults(docker_training=False)
+        '--pretrained-model',
+        default=None,
+        help="Model's checkpoint saved"
+    )
+
+
+
+    # # parser.add_argument('--lbda', type=float, default=0.95)
+    # # parser.add_argument('--gamma', type=float, default=0.96)  # 0.99
+    # # parser.add_argument('--nminibatches', type=int, default=8)
+    # # parser.add_argument('--norm_adv', type=int, default=1)
+    # # parser.add_argument('--norm_rew', type=int, default=0)
+    # # parser.add_argument(
+    # #     '--lr', type=float, default=1e-4)  # lambda f: f * 2.5e-4,
+    # # parser.add_argument('--ent_coeff', type=float, default=0.001)
+    # # parser.add_argument('--nepochs', type=int, default=8)
+    # parser.add_argument('--nsteps_per_seg', type=int, default=512)
+    # parser.add_argument('--num_practice_agents', type=int, default=0)
+    # # parser.add_argument('--num_timesteps', type=int, default=int(1e7))
+    #
+    # # parser.add_argument('--env', help='environment ID', default='ObtRetro-v4')
+    # # parser.add_argument('--seed', help='RNG seed', type=int, default=0)
+    # parser.add_argument(
+    #     'environment_filename',
+    #     default='../../../ObstacleTower/obstacletower',
+    #     nargs='?')
+    # # parser.add_argument('--envs_per_process', type=int, default=8)
+    # parser.add_argument('--real_time', action='store_true')
+    # parser.add_argument('--score', type=bool, default=False)
+    # parser.add_argument('--docker_training', action='store_true')
+    # parser.set_defaults(docker_training=False)
     parser.add_argument('--sample_normal', action='store_true')
-    parser.add_argument('--seed_from_10', action='store_true')
-    parser.add_argument('--alfie', action='store_true')
-    parser.add_argument('--level_is_rand', action='store_true')
-    parser.add_argument('--exp_name', type=str, default='debug')
-    # parser.add_argument('--save_freq', type=int, default=50000)
-    parser.add_argument('--load', action='store_true')
-    # parser.add_argument('--normalize_visual_obs', action='store_true')
-    parser.add_argument('--inverse_rl', action='store_true')
-    parser.add_argument('--action_set_5', action='store_true')
-    parser.add_argument('--action_set_6', action='store_true')
-    parser.add_argument('--action_set_20', action='store_true')
-    parser.add_argument('--action_set_27', action='store_true')
-    parser.add_argument('--action_set_54', action='store_true')
-    parser.add_argument('--half_precision', action='store_true')
+    # parser.add_argument('--seed_from_10', action='store_true')
+    # parser.add_argument('--alfie', action='store_true')
+    # parser.add_argument('--level_is_rand', action='store_true')
+    # parser.add_argument('--exp_name', type=str, default='debug')
+    # # parser.add_argument('--save_freq', type=int, default=50000)
+    # parser.add_argument('--load', action='store_true')
+    # # parser.add_argument('--normalize_visual_obs', action='store_true')
+    # parser.add_argument('--inverse_rl', action='store_true')
+    # parser.add_argument('--action_set_5', action='store_true')
+    # parser.add_argument('--action_set_6', action='store_true')
+    # parser.add_argument('--action_set_20', action='store_true')
+    # parser.add_argument('--action_set_27', action='store_true')
+    # parser.add_argument('--action_set_54', action='store_true')
+    # parser.add_argument('--half_precision', action='store_true')
+    parser.add_argument('--test', action='store_true')
 
     return parser
+
 
 def evaluate(model, num_steps=1000):
     """
@@ -266,5 +274,7 @@ def evaluate(model, num_steps=1000):
 
     return mean_100ep_reward
 
+
 def log(s):
+
     print('[' + str(datetime.now().strftime('%Y-%m-%dT%H:%M:%S')) + '] ' + s)
