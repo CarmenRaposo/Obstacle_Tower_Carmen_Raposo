@@ -53,8 +53,8 @@ def test(T, model, global_path, evaluate=False, realtime=True, env=None):
         floors.append(T_floors)
 
         # Plot
-        _plot_line(Ts, rewards, 'Reward', path='results')
-        _plot_line(Ts, floors, 'Floors', path='results')
+        _plot_line(Ts, rewards, 'Reward', path=args.log_dir)
+        _plot_line(Ts, floors, 'Floors', path=args.log_dir)
 
         # Save model parameters if improved
         if avg_reward > best_avg_reward:

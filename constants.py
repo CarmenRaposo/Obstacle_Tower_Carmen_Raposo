@@ -4,4 +4,8 @@ from utils import otc_arg_parser
 parser = otc_arg_parser()
 args = parser.parse_args()
 
-GLOBAL_PATH = args.results_dir + "_" + args.training_name + "/"
+if args.study:
+    args.training_name = 'study'
+
+# GLOBAL_PATH = args.results_dir + args.training_name + "/"
+GLOBAL_PATH = args.results_dir

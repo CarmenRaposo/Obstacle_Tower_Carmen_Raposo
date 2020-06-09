@@ -3,11 +3,12 @@ from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common import make_vec_env
 from stable_baselines import PPO2
 from utils import otc_arg_parser, log
-from environment_preprocessing import OTCPreprocessing, RetroWrapper
+from environment_preprocessing import OTCPreprocessing
 from stable_baselines.common.vec_env import DummyVecEnv
 from plotter import test
 import os
 from constants import *
+from ppo_studio import params_test
 
 """TOTAL_TIMESTEPS = 5000000
 TRAINING_INTERVAL_STEPS = 1000
@@ -54,60 +55,72 @@ def main():
 
     ########Training########
 
-    if not args.test:
+    #Study of the impact of different values of the PPO params
+    if args.study:
+        params_test(MlpPolicy, env)
 
-        if args.use_gae:
+    #If no Study Mode
+    else:
+        #If no Test Mode
+        if not args.test:
 
-            model = PPO2(MlpPolicy, env, verbose=1, tensorboard_log=args.tensorboard_logdir,
-                                cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
-                                vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
-                                gamma=args.gamma, lam=args.gae_lambda, noptepochs=args.ppo_epoch)
+            #If Generalized Advantage Estimator is used
+            if args.use_gae:
+
+                model = PPO2(MlpPolicy, env, verbose=1, tensorboard_log=args.tensorboard_logdir,
+                                    cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
+                                    vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
+                                    gamma=args.gamma, lam=args.gae_lambda, noptepochs=args.ppo_epoch)
+
+            #If Generalized Advantage Estimator is not used
+            else:
+
+                model = PPO2(MlpPolicy, env, verbose=1, tensorboard_log=args.tensorboard_logdir,
+                                    cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
+                                    vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
+                                    gamma=args.gamma, noptepochs=args.ppo_epoch)
         else:
 
-            model = PPO2(MlpPolicy, env, verbose=1, tensorboard_log=args.tensorboard_logdir,
-                                cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
-                                vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
-                                gamma=args.gamma, noptepochs=args.ppo_epoch)
-    else:
+            model = PPO2.load(args.pretrained_model, env=env)
 
-        model = PPO2.load(args.pretrained_model, env=env)
+        #model.learn(total_timesteps=50000)
+        #model.save("ObstacleTower_prueba")
 
-    #model.learn(total_timesteps=50000)
-    #model.save("ObstacleTower_prueba")
 
-    filename = 'argsparams.txt'
-    myfile = open(args.results_dir + filename, 'a')
-    myfile.write(args)
-    myfile.close()
+        filename = 'argsparams.txt'
+        os.makedirs(args.results_dir, exist_ok=True)
+        myfile = open(args.results_dir + filename, 'w+')
+        myfile.write(args)
+        myfile.close()
 
-    if not args.test:
-        t = 0
-        while t < args.num_env_steps:
-            #TRAIN MODEL
-            if t == 0:
-                model.learn(total_timesteps=args.eval_interval)
+        if not args.test:
+            t = 0
+            while t < args.num_env_steps:
+                #TRAIN MODEL
+                if t == 0:
+                    model.learn(total_timesteps=args.eval_interval)
 
-            else:
-                model.learn(total_timesteps=args.eval_interval, reset_num_timesteps=False)
+                else:
+                    model.learn(total_timesteps=args.eval_interval, reset_num_timesteps=False)
 
-            os.makedirs(GLOBAL_PATH, exist_ok=True)
-            print("Saving in '" + GLOBAL_PATH + "'")
-            model.save(GLOBAL_PATH + args.training_name + "_" + str(int(t)).zfill(10))
+                os.makedirs(GLOBAL_PATH, exist_ok=True)
+                print("Saving in '" + GLOBAL_PATH + "'")
+                model.save(GLOBAL_PATH + args.training_name + "_" + str(int(t)).zfill(10))
 
-            avg_reward, avg_floor = test(t, model, env=env, global_path=args.results_dir)  # Test
-            log('T = ' + str(t) + ' / ' + str(args.num_env_steps) + ' | Avg. reward: ' + str(
-                avg_reward) + ' | Avg. floor: ' + str(avg_floor))
+                avg_reward, avg_floor = test(t, model, env=env, global_path=args.results_dir)  # Test
+                log('T = ' + str(t) + ' / ' + str(args.num_env_steps) + ' | Avg. reward: ' + str(
+                    avg_reward) + ' | Avg. floor: ' + str(avg_floor))
 
-            t += args.eval_interval
-    else:
-        obs = env.reset()
-        t = 0
-        while t < args.num_env_steps:
+                t += args.eval_interval
+        else:
+            obs = env.reset()
+            t = 0
+            while t < args.num_env_steps:
 
-            action, _states = model.predict(obs)
-            obs, rewards, done, info = env.step(action)
-            print('action :', info)
-            env.render('rgb_array')
+                action, _states = model.predict(obs)
+                obs, rewards, done, info = env.step(action)
+                print('action :', info)
+                env.render('rgb_array')
 
 
 if __name__ == "__main__":

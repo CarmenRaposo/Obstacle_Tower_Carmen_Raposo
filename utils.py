@@ -100,8 +100,8 @@ def otc_arg_parser():
     parser.add_argument(
         '--ppo-epoch',
         type=int,
-        # default=4,
-        default=1,
+        default=4,
+        # default=1,
         # default=3,
         help='number of ppo epochs (default: 4)')
     parser.add_argument(
@@ -173,32 +173,86 @@ def otc_arg_parser():
         help='use a linear schedule on the learning rate')
     parser.add_argument(
         '--tensorboard-logdir',
-        default="./results/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/tensorboard/logs_tensorboard",
-        help = 'dir of the tensorboard logs'
-    )
+        default="./results/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/tensorboard/",
+        help='dir of the tensorboard logs')
     parser.add_argument(
         '--results-dir',
         default="./results/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/model/",
         help="dir of the results evaluation logs")
-
     parser.add_argument(
         '--training-name',
         default="ppo_v3",
-        help="name of the training saved file"
-    )
-
+        help="name of the training saved file")
     parser.add_argument(
         '--policy',
         help='Policy architecture',
         choices=['cnn', 'lstm', 'lnlstm', 'mlp'],
         default='lnlstm')
-
     parser.add_argument(
         '--pretrained-model',
         default=None,
-        help="Model's checkpoint saved"
-    )
+        help="Model's checkpoint saved")
 
+    ###########################################################################################
+    #Study Params
+    parser.add_argument(
+        '--study',
+        action='store_true',
+        default=False,
+        help="Study of PPO parameters Mode")
+    parser.add_argument(
+        '--n-steps-test',
+        type=list,
+        default=[512],
+        help="List of nsteps different values")
+    parser.add_argument(
+        '--ppo-epoch-test',
+        type=list,
+        default=[4],
+        help="List of nopepoch different values")
+    parser.add_argument(
+        '--clip-param-test',
+        type=list,
+        default=[0.1, 0.2],
+        help="List of clipping param different values")
+    parser.add_argument(
+        '--gamma-test',
+        type=list,
+        default=[0.99, 0.9997],
+        help="List of gamma different values")
+    parser.add_argument(
+        '--gae-lambda-test',
+        type=list,
+        default=[0.95],
+        help="List of gae lambda different values")
+    parser.add_argument(
+        '--value-loss-coef-test',
+        type=list,
+        default=[0.5],
+        help="List of value loss coefficient different values")
+    parser.add_argument(
+        '--entropy-coef-test',
+        type=list,
+        default=[0.01, 0.001],
+        help="List of entropy coefficients different values")
+    parser.add_argument(
+        '--lr-test',
+        type=list,
+        default=[2.5e-4, 7e-4],
+        help="List of learning rate different values")
+    parser.add_argument(
+        '--use-gae-test',
+        action='store_true',
+        default=False,  #True
+        help="Use generalized advantage estimation'")
+    parser.add_argument(
+        '--num-env-steps-test',
+        type=int,
+        default=10e6,
+        help="List of learning rate different values")
+
+
+    ###########################################################################################
 
 
     # # parser.add_argument('--lbda', type=float, default=0.95)
@@ -241,6 +295,7 @@ def otc_arg_parser():
     # parser.add_argument('--action_set_54', action='store_true')
     # parser.add_argument('--half_precision', action='store_true')
     parser.add_argument('--test', action='store_true')
+    parser.add_argument('--preprocess-images', action='store_true')
 
     return parser
 
