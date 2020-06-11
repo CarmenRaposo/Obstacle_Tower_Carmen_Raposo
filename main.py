@@ -36,21 +36,20 @@ def main():
     #     #     env = RenderObservations(env)
     #     #     env = KeyboardControlWrapper(env)
     # else:
-    #     env = ObstacleTowerEnv('/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/ObstacleTower-v3.1/obstacletower.x86_64',
-    #                        retro=args.retro, realtime_mode=args.test, timeout_wait=6000)
+    env = ObstacleTowerEnv('/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/ObstacleTower-v3.1/obstacletower.x86_64',
+                         retro=args.retro, realtime_mode=args.test, timeout_wait=6000)
 
-    env = ObstacleTowerEnv(
-        '/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/ObstacleTower-v3.1/obstacletower.x86_64',
-        retro=args.retro, realtime_mode=args.test, timeout_wait=6000)
+    #env = ObstacleTowerEnv('OBSTACLE_TOWER_PATH', retro=args.retro, realtime_mode=args.test, timeout_wait=6000)
 
     #Dict of actions created by the ObstacleTowerEnv Class of obstacle_tower_env library
     #print("ACTIONS:", env._flattener.action_lookup)
     
     #Preprocess the environment (Grey Scales and action space reduction)
-    env = OTCPreprocessing(env, args.action_reduction)
+    env = OTCPreprocessing(env, args.action_reduction, args.features)
     env = DummyVecEnv([lambda: env])
 
     print("ACTION SPACE  ///////////:", env.action_space)
+    print("OBSERVATION SPACE ///////////////:", env.observation_space)
     #env = make_vec_env(env, n_envs=4)
 
     ########Training########

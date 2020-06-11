@@ -13,7 +13,7 @@ Ts, rewards, floors, best_avg_reward = [], [], [], -1e10
 
 
 # Test
-def test(T, model, global_path, evaluate=False, realtime=True, env=None):
+def test(T, model, global_path, evaluate=False, realtime=True, env=None, i=None):
 
     global Ts, rewards, best_avg_reward
 
@@ -53,13 +53,20 @@ def test(T, model, global_path, evaluate=False, realtime=True, env=None):
         floors.append(T_floors)
 
         # Plot
-        _plot_line(Ts, rewards, 'Reward', path=args.log_dir)
-        _plot_line(Ts, floors, 'Floors', path=args.log_dir)
+        if i:
+            _plot_line(Ts, rewards, 'Reward' + str(i), path=args.log_dir)
+            _plot_line(Ts, floors, 'Floors' + str(i), path=args.log_dir)
 
+            if avg_reward > best_avg_reward:
+                best_avg_reward = avg_reward
+                model.save(global_path + args.training_name + "_bestmodel" + str(i))
+        else:
+            _plot_line(Ts, rewards, 'Reward', path=args.log_dir)
+            _plot_line(Ts, floors, 'Floors', path=args.log_dir)
         # Save model parameters if improved
-        if avg_reward > best_avg_reward:
-            best_avg_reward = avg_reward
-            model.save(global_path + args.training_name + "_bestmodel")
+            if avg_reward > best_avg_reward:
+                best_avg_reward = avg_reward
+                model.save(global_path + args.training_name + "_bestmodel")
 
     # Return average reward and floor
     return avg_reward, avg_floor

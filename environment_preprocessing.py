@@ -1,5 +1,6 @@
 import gym
 from gym import spaces
+from features_classifier import StateFeatures
 import numpy as np
 import cv2
 
@@ -10,7 +11,7 @@ class OTCPreprocessing(gym.Wrapper):
     do anything else to the environment.
     """
 
-    def __init__(self, environment, action_reduction):
+    def __init__(self, environment, action_reduction, features):
         """Constructor for an Obstacle Tower preprocessor.
 
         Args:
@@ -24,6 +25,7 @@ class OTCPreprocessing(gym.Wrapper):
         self.game_over = False
         #self.lives = 0  # Will need to be set by reset().
         self.action_reduction = action_reduction
+        self.features = features
 
         if action_reduction:
                 # Reduction of the action space dimensionality wit only 8 basic possible movements
@@ -53,9 +55,9 @@ class OTCPreprocessing(gym.Wrapper):
 
 
     @property
-    def observation_space(self, image_classifier=False):
-        if image_classifier:
-            pass
+    def observation_space(self):
+        if self.features:
+            return spaces.Tuple(self.env.observation_space, spaces.Discrete(11))
         else:
             return self.env.observation_space
 
@@ -147,15 +149,22 @@ class OTCPreprocessing(gym.Wrapper):
         #     observation = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
         info['actual_action'] = actionInput
         info['actual_inner_action'] = action
-        return observation, reward, game_over, info
-
-    def unwrap(self):
-        if hasattr(self.env, "unwrapped"):
-            return env.unwrapped
-        elif hasattr(self.env, "env"):
-            return unwrap(self.env.env)
-        elif hasattr(self.env, "leg_env"):
-            self.unwrap = unwrap(self.env.leg_env)
-            return self.unwrap
+        if self.features:
+            return (observation, StateFeatures.features(observation)), reward, game_over, info
         else:
-            return self.env
+            return observation, reward, game_over, info
+
+
+
+
+        # def unwrap(self):
+    #     if hasattr(self.env, "unwrapped"):
+    #         return env.unwrapped
+    #     elif hasattr(self.env, "env"):
+    #         return unwrap(self.env.env)
+    #     elif hasattr(self.env, "leg_env"):
+    #         self.unwrap = unwrap(self.env.leg_env)
+    #         return self.unwrap
+    #     else:
+    #         return self.env
+

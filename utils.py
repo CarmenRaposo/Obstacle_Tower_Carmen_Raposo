@@ -14,6 +14,11 @@ def otc_arg_parser():
         default=True, #False
         help='reduce the action space dimensionality')
     parser.add_argument(
+        '--features',
+        action='store_true',
+        default=False,  #True
+        help='Use a feature image classifier')
+    parser.add_argument(
         '--image_classifier',
         action='store_true',
         default=False, #True
@@ -130,7 +135,7 @@ def otc_arg_parser():
     parser.add_argument(
         '--eval-interval',
         type=int,
-        default=10000,
+        default=25000,
         help='eval interval, one eval per n updates (default: None)')
     parser.add_argument(
         '--num-env-steps',
@@ -248,7 +253,7 @@ def otc_arg_parser():
     parser.add_argument(
         '--num-env-steps-test',
         type=int,
-        default=10e6,
+        default=1e6,
         help="List of learning rate different values")
 
 
