@@ -114,3 +114,28 @@ class FixupResidual(nn.Module):
         out = out * self.scale
         out = out + self.bias4
         return out + x
+
+
+class StateFeatures_pred:
+    """
+    Generate the part of state vectors that reflect the
+    observation. This does not include rewards or actions.
+    """
+
+    def __init__(self, path='save_classifier.pkl'):
+        self.classifier = StateClassifier()
+        self.classifier.load_state_dict(torch.load(path))
+        self.classifier.to(torch.device('cuda'))
+
+    def features(self, obses):
+        res = []
+        for obs in obses:
+            # Check if we have a key.
+            if (obs[3] != 0).any():
+                res.append([1.0])
+            else:
+                res.append([0.0])
+        device = next(self.classifier.parameters()).device
+        obs_tensor = torch.from_numpy(obses).to(device)
+        class_out = torch.sigmoid(self.classifier(obs_tensor)).detach().cpu().numpy()
+        return np.concatenate([np.array(res), class_out], axis=-1)

@@ -13,11 +13,21 @@ Ts, rewards, floors, best_avg_reward = [], [], [], -1e10
 
 
 # Test
-def test(T, model, global_path, evaluate=False, realtime=True, env=None, i=None):
+def test(T, model, global_path, evaluate=False, realtime=True, env=None, i=None, i_prev=None):
 
     global Ts, rewards, best_avg_reward
 
     evaluation_episodes = 10
+
+    if i is not None:
+        if i_prev is not None:
+            if i != i_prev:
+                i_prev = i
+                Ts.clear()
+                rewards.clear()
+                floors.clear()
+        else:
+            i_prev = i
 
     Ts.append(T)
     T_rewards = []

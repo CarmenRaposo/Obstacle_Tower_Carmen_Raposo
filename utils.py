@@ -35,9 +35,9 @@ def otc_arg_parser():
         '--lr',
         type=float,
         # default=7e-4,
-        # default=2.5e-4,
-        default=1e-4,
-        help='learning rate (default: 7e-4)')
+        default=2.5e-4,
+        #default=1e-4,
+        help='learning rate (default: 2e-4)')
     parser.add_argument(
         '--eps',
         type=float,
@@ -67,7 +67,7 @@ def otc_arg_parser():
     parser.add_argument(
         '--entropy-coef',
         type=float,
-        default=0.01,
+        default=0.001,
         #default=0.001,
         help='entropy term coefficient (default: 0.01)')
     parser.add_argument(
@@ -101,7 +101,7 @@ def otc_arg_parser():
         default=512,
         # default=256,
         # default=128,
-        help='number of forward steps in A2C (default: 5)')
+        help='number of forward steps in A2C (default: 512)')
     parser.add_argument(
         '--ppo-epoch',
         type=int,
@@ -148,7 +148,7 @@ def otc_arg_parser():
         help='environment to train on (default: PongNoFrameskip-v4)')
     parser.add_argument(
         '--log-dir',
-        default='./results/' + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + '/',
+        default='./results/train_features/' + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + '/',
         help='directory to save agent logs (default: /tmp/gym)')
     parser.add_argument(
         '--save-dir',
@@ -178,11 +178,11 @@ def otc_arg_parser():
         help='use a linear schedule on the learning rate')
     parser.add_argument(
         '--tensorboard-logdir',
-        default="./results/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/tensorboard/",
+        default="./results/train_features/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/tensorboard/",
         help='dir of the tensorboard logs')
     parser.add_argument(
         '--results-dir',
-        default="./results/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/model/",
+        default="./results/train_features/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/model/",
         help="dir of the results evaluation logs")
     parser.add_argument(
         '--training-name',

@@ -1,8 +1,9 @@
 import gym
 from gym import spaces
-from features_classifier import StateFeatures
+from features_classifier import StateFeatures, StateClassifier
+import torch
 import numpy as np
-import cv2
+import pdb
 
 class OTCPreprocessing(gym.Wrapper):
     """A class implementing image preprocessing for OTC agents.
@@ -57,7 +58,12 @@ class OTCPreprocessing(gym.Wrapper):
     @property
     def observation_space(self):
         if self.features:
-            return spaces.Tuple(self.env.observation_space, spaces.Discrete(11))
+            image_space = spaces.Box(0, 255, dtype=np.uint8, shape=(84, 84, 3))
+            #return spaces.Box(low=-256, high=256, shape=(21168, 1), dtype=np.float32)
+            #return spaces.Discrete(21179)
+            obs_space = spaces.Box(0, 255, dtype=np.uint8, shape=(21179,))
+            return obs_space
+            #return spaces.Tuple((image_space, spaces.Discrete(11)))
         else:
             return self.env.observation_space
 
@@ -89,6 +95,25 @@ class OTCPreprocessing(gym.Wrapper):
         observation = self.env.reset()
         # if(len(observation.shape)> 2):
         #     observation = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
+
+        if self.features:
+            device = torch.device('cuda')
+            clasificador = StateClassifier()
+            clasificador.load_state_dict(torch.load('save_classifier.pkl', map_location='cpu'))
+            clasificador.to(device)
+            #class_observation = np.array(observation)
+            class_observation = torch.from_numpy(np.array(observation)[None]).to(device)
+            features = clasificador(class_observation).detach().cpu().numpy()[0]#Change the boolean array to a binary array (length 11)
+            features = features > 0
+            features = [0 if features[i] == False else 1 for i in range(len(features))]
+            #print('features :', features)
+            observation = observation.reshape(21168) #Reshape the observation to manage properly the observation space
+            #features = features.reshape(11,1)
+            #pdb.set_trace()
+            observation = np.append(observation, features) #Add the features array as part of the observation
+            #observation = observation[:, 0]
+            # print('observation : ', observation[:])
+            # print('observation shape and type', observation.shape, observation.dtype)
 
         return observation
 
@@ -149,10 +174,27 @@ class OTCPreprocessing(gym.Wrapper):
         #     observation = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
         info['actual_action'] = actionInput
         info['actual_inner_action'] = action
+
         if self.features:
-            return (observation, StateFeatures.features(observation)), reward, game_over, info
-        else:
-            return observation, reward, game_over, info
+            device = torch.device('cuda')
+            clasificador = StateClassifier()
+            clasificador.load_state_dict(torch.load('save_classifier.pkl', map_location='cpu'))
+            clasificador.to(device)
+            #class_observation = np.array(observation)
+            class_observation = torch.from_numpy(np.array(observation)[None]).to(device)
+            features = clasificador(class_observation).detach().cpu().numpy()[0]#Change the boolean array to a binary array (length 11)
+            features = features > 0
+            features = [0 if features[i] == False else 1 for i in range(len(features))]
+            #print('features :', features)
+            observation = observation.reshape(21168) #Reshape the observation to manage properly the observation space
+            #features = features.reshape (11,1)
+            #pdb.set_trace()
+            observation = np.append(observation, features)  #Add the features array as part of the observation
+            #observation = observation[:, 0]
+            # print('observation : ', observation[:])
+            # print('observation shape', observation.shape)
+
+        return observation, reward, game_over, info
 
 
 

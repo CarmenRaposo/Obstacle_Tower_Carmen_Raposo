@@ -24,95 +24,96 @@ def params_test(policy, env, n_steps=args.n_steps_test, ppo_epochs=args.ppo_epoc
 
                                     i += 1
 
-                                    if i in [1, 2, 3]:
-                                        pass
-                                    else:
+                                    # if i in [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 15, 16]: #Falta el 6 y el 14 por hacer completo
+                                    #     pass
+                                    # else:
 
-                                        # if i == 3:
+                                        # if i == 15:
                                         #     print('Continue Training')
-                                        #     trained_model = "/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/python_scripts/Obstacle_Tower_Carmen_Raposo/results/June-10-2020_20_51PM/model/__3__study_0000350000.zip"
-                                        #     model = PPO2.load(trained_model, env=env, tensorboard_log="/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/python_scripts/Obstacle_Tower_Carmen_Raposo/results/June-10-2020_20_51PM/tensorboard/3/")
+                                        #     trained_model = "/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/python_scripts/Obstacle_Tower_Carmen_Raposo/results/June-17-2020_01_46AM/model/__15__study_0000350000.zip"
+                                        #     model = PPO2.load(trained_model, env=env, tensorboard_log="/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/python_scripts/Obstacle_Tower_Carmen_Raposo/results/June-17-2020_01_46AM/tensorboard/15/")
                                         #     t = 375000
-                                        #     GLOBAL_PATH = "/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/python_scripts/Obstacle_Tower_Carmen_Raposo/results/June-10-2020_20_51PM/model/"
+                                        #     GLOBAL_PATH = "/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/python_scripts/Obstacle_Tower_Carmen_Raposo/results/June-17-2020_01_46AM/model/"
                                         #     filename = 'argsparams' + str(i) + '.txt'
                                         #     os.makedirs(args.results_dir, exist_ok=True)
                                         #
                                         #
                                         # else:
-                                        print('Start Training: \n n_step: %f \n ppo_epoch: %f \n clip_param: %f \n gamma: %f'
-                                              '\n lambda: %f \n value_loss_coef: %f \n entropy_coef: %f \n learning_rate : %f'
-                                              % (n_step, ppo_epoch, clip_param, gamma, lb, value_loss_coef, entropy_coef,
-                                                 lr))
-                                        #Fixed seed
-                                        random.seed(0)
-                                        #env.seed(5)
+                                    print('Start Training: \n n_step: %f \n ppo_epoch: %f \n clip_param: %f \n gamma: %f'
+                                          '\n lambda: %f \n value_loss_coef: %f \n entropy_coef: %f \n learning_rate : %f'
+                                          % (n_step, ppo_epoch, clip_param, gamma, lb, value_loss_coef, entropy_coef,
+                                             lr))
+                                    #Fixed seed
+                                    seed = random.seed(0)
+                                    #env.seed(5)
 
-                                        if args.use_gae_test:
+                                    if args.use_gae_test:
 
-                                            model = PPO2(policy, env, n_steps=n_step, verbose=1, tensorboard_log=args.tensorboard_logdir + str(i) + '/',
-                                                         cliprange=clip_param, learning_rate=lr, ent_coef=entropy_coef,
-                                                         vf_coef=value_loss_coef, max_grad_norm=args.max_grad_norm,
-                                                         gamma=gamma, lam=lb, noptepochs=ppo_epoch)
-                                        else:
+                                        model = PPO2(policy, env, n_steps=n_step, verbose=1, tensorboard_log=args.tensorboard_logdir + str(i) + '/',
+                                                     cliprange=clip_param, learning_rate=lr, ent_coef=entropy_coef,
+                                                     vf_coef=value_loss_coef, max_grad_norm=args.max_grad_norm,
+                                                     gamma=gamma, lam=lb, noptepochs=ppo_epoch, seed=seed)
+                                    else:
 
-                                            model = PPO2(policy, env, n_steps=n_step, verbose=1, tensorboard_log=args.tensorboard_logdir + str(i) + '/',
-                                                         cliprange=clip_param, learning_rate=lr, ent_coef=entropy_coef,
-                                                         vf_coef=value_loss_coef, max_grad_norm=args.max_grad_norm,
-                                                         gamma=gamma, noptepochs=ppo_epoch)
+                                        model = PPO2(policy, env, n_steps=n_step, verbose=1, tensorboard_log=args.tensorboard_logdir + str(i) + '/',
+                                                     cliprange=clip_param, learning_rate=lr, ent_coef=entropy_coef,
+                                                     vf_coef=value_loss_coef, max_grad_norm=args.max_grad_norm,
+                                                     gamma=gamma, noptepochs=ppo_epoch, seed=seed)
 
 
-                                        #Save the values of the configured parameters
-                                        filename = 'argsparams' + str(i) + '.txt'
-                                        os.makedirs(args.results_dir, exist_ok=True)
-                                        myfile = open(args.results_dir + filename, 'w+')
-                                        myfile.write('n_step: %f \n ppo_epoch: %f \n clip_param: %f \n gamma: %f \n lambda: %f ' 
-                                                 '\n value_loss_coef: %f \n entropy_coef: %f \n learning_rate : %f'
-                                                 % (n_step, ppo_epoch, clip_param, gamma, lb, value_loss_coef, entropy_coef,
-                                                    lr))
-                                        myfile.close()
-                                        t = 0
+                                    #Save the values of the configured parameters
+                                    filename = 'argsparams' + str(i) + '.txt'
+                                    os.makedirs(args.results_dir, exist_ok=True)
+                                    myfile = open(args.results_dir + filename, 'w+')
+                                    myfile.write('n_step: %f \n ppo_epoch: %f \n clip_param: %f \n gamma: %f \n lambda: %f ' 
+                                             '\n value_loss_coef: %f \n entropy_coef: %f \n learning_rate : %f'
+                                             % (n_step, ppo_epoch, clip_param, gamma, lb, value_loss_coef, entropy_coef,
+                                                lr))
+                                    myfile.close()
+                                    t = 0
 
-                                        #t = 0
-                                        while t < args.num_env_steps_test:
-                                            # TRAIN MODEL
-                                            try:
-                                                if t == 0:
-                                                    model.learn(total_timesteps=args.eval_interval)
+                                    #t = 0
+                                    while t < args.num_env_steps_test:
+                                        # TRAIN MODEL
+                                        try:
+                                            if t == 0:
+                                                model.learn(total_timesteps=args.eval_interval)
 
-                                                else:
-                                                    model.learn(total_timesteps=args.eval_interval,
-                                                                reset_num_timesteps=False)
+                                            else:
+                                                model.learn(total_timesteps=args.eval_interval,
+                                                            reset_num_timesteps=False)
 
-                                                os.makedirs(GLOBAL_PATH, exist_ok=True)
-                                                print("Saving in '" + GLOBAL_PATH + "'")
-                                                model.save(GLOBAL_PATH + '__' + str(i) + '__' + args.training_name + "_" + str(int(t)).zfill(10))
+                                            os.makedirs(GLOBAL_PATH, exist_ok=True)
+                                            print("Saving in '" + GLOBAL_PATH + "'")
+                                            model.save(GLOBAL_PATH + '__' + str(i) + '__' + args.training_name + "_" + str(int(t)).zfill(10))
 
-                                                avg_reward, avg_floor = test(t, model, env=env,
-                                                                             global_path=GLOBAL_PATH + '__' + str(i), i=i)  # Test
-                                                log('T = ' + str(t) + ' / ' + str(
-                                                    args.num_env_steps_test) + ' | Avg. reward: ' + str(
-                                                    avg_reward) + ' | Avg. floor: ' + str(avg_floor))
+                                            avg_reward, avg_floor = test(t, model, env=env,
+                                                                         global_path=GLOBAL_PATH + '__' + str(i), i=i)  # Test
+                                            log('T = ' + str(t) + ' / ' + str(
+                                                args.num_env_steps_test) + ' | Avg. reward: ' + str(
+                                                avg_reward) + ' | Avg. floor: ' + str(avg_floor))
 
-                                                t += args.eval_interval
-                                            except Exception as e:
+                                            t += args.eval_interval
+                                        except Exception as e:
 
-                                                env.close()
+                                            env.close()
 
-                                                myfile = open(GLOBAL_PATH + filename, 'a')
-                                                myfile.write('\n An exception %s has occured at step %f' % (e, t))
-                                                myfile.close()
+                                            myfile = open(GLOBAL_PATH + filename, 'a')
+                                            myfile.write('\n An exception %s has occured at step %f' % (e, t))
+                                            myfile.close()
 
-                                                del model
+                                            del model
 
-                                                from obstacle_tower_env import ObstacleTowerEnv
-                                                env = ObstacleTowerEnv('/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/ObstacleTower-v3.1/obstacletower.x86_64',
-                                                      retro=args.retro, realtime_mode=args.test, timeout_wait=6000)
+                                            from obstacle_tower_env import ObstacleTowerEnv
+                                            env = ObstacleTowerEnv('/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/ObstacleTower-v3.1/obstacletower.x86_64',
+                                                  retro=args.retro, realtime_mode=args.test, timeout_wait=6000)
 
-                                                break
+                                            break
 
-                                        env.reset()
-                                        del model
-                                        #time.sleep(300)
+                                    env.reset()
+                                    break
+                                    del model
+                                    #time.sleep(300)
 
 
 

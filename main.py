@@ -4,11 +4,12 @@ from stable_baselines.common import make_vec_env
 from stable_baselines import PPO2
 from utils import otc_arg_parser, log
 from environment_preprocessing import OTCPreprocessing
-from stable_baselines.common.vec_env import DummyVecEnv
+from stable_baselines.common.vec_env import DummyVecEnv, VecEnv
 from plotter import test
 import os
 from constants import *
 from ppo_studio import params_test
+import random
 
 """TOTAL_TIMESTEPS = 5000000
 TRAINING_INTERVAL_STEPS = 1000
@@ -47,6 +48,7 @@ def main():
     #Preprocess the environment (Grey Scales and action space reduction)
     env = OTCPreprocessing(env, args.action_reduction, args.features)
     env = DummyVecEnv([lambda: env])
+    #env = VecEnv(1, env.observation_space, env.action_space)
 
     print("ACTION SPACE  ///////////:", env.action_space)
     print("OBSERVATION SPACE ///////////////:", env.observation_space)
@@ -63,21 +65,23 @@ def main():
         #If no Test Mode
         if not args.test:
 
+            seed = random.seed(0)
+
             #If Generalized Advantage Estimator is used
             if args.use_gae:
 
-                model = PPO2(MlpPolicy, env, verbose=1, tensorboard_log=args.tensorboard_logdir,
-                                    cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
-                                    vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
-                                    gamma=args.gamma, lam=args.gae_lambda, noptepochs=args.ppo_epoch)
+                model = PPO2(MlpPolicy, env, n_steps=args.num_steps, verbose=1, tensorboard_log=args.tensorboard_logdir,
+                             cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
+                             vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
+                             gamma=args.gamma, lam=args.gae_lambda, noptepochs=args.ppo_epoch, seed=seed)
 
             #If Generalized Advantage Estimator is not used
             else:
 
-                model = PPO2(MlpPolicy, env, verbose=1, tensorboard_log=args.tensorboard_logdir,
-                                    cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
-                                    vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
-                                    gamma=args.gamma, noptepochs=args.ppo_epoch)
+                model = PPO2(MlpPolicy, env, n_steps=args.num_steps, verbose=1, tensorboard_log=args.tensorboard_logdir,
+                             cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
+                             vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
+                             gamma=args.gamma, noptepochs=args.ppo_epoch, seed=seed)
         else:
 
             model = PPO2.load(args.pretrained_model, env=env)
@@ -88,8 +92,11 @@ def main():
 
         filename = 'argsparams.txt'
         os.makedirs(args.results_dir, exist_ok=True)
-        myfile = open(args.results_dir + filename, 'w+')
-        myfile.write(args)
+        myfile = open(args.results_dir + filename, 'a')
+        myfile.write('clip range: %f \n learning rate: %f \n coeficiente de entropía: %f \n coeficiente de pérdida: %f \n '
+                     'máximo gradiente: %f \n gamma: %f \n ppo epoch: %f \n'
+                     % (args.clip_param, args.lr, args.entropy_coef, args.value_loss_coef, args.max_grad_norm,
+                        args.gamma, args.ppo_epoch))
         myfile.close()
 
         if not args.test:
