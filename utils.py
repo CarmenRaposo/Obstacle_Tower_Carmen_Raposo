@@ -57,7 +57,7 @@ def otc_arg_parser():
     parser.add_argument(
         '--use-gae',
         action='store_true',
-        default=True,# False,
+        default=False,#True
         help='use generalized advantage estimation')
     parser.add_argument(
         '--gae-lambda',
@@ -118,8 +118,8 @@ def otc_arg_parser():
     parser.add_argument(
         '--clip-param',
         type=float,
-        # default=0.2,
-        default=0.1,
+        default=0.2,
+        #default=0.1,
         help='ppo clip parameter (default: 0.2)')
     parser.add_argument(
         '--log-interval',
@@ -197,6 +197,17 @@ def otc_arg_parser():
         '--pretrained-model',
         default=None,
         help="Model's checkpoint saved")
+    parser.add_argument(
+        '--rnd',
+        action='store_true',
+        default=False,
+        help='Training with RND algorithm'
+    )
+    parser.add_argument(
+        '--rnd-batch-size',
+        default=10,
+        help='Horizon of training of RND predictor network'
+    )
 
     ###########################################################################################
     #Study Params

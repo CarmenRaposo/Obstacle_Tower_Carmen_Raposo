@@ -44,7 +44,10 @@ def main():
 
     #Dict of actions created by the ObstacleTowerEnv Class of obstacle_tower_env library
     #print("ACTIONS:", env._flattener.action_lookup)
-    
+
+
+    print('FEATURES :', args.features)
+
     #Preprocess the environment (Grey Scales and action space reduction)
     env = OTCPreprocessing(env, args.action_reduction, args.features)
     env = DummyVecEnv([lambda: env])
@@ -125,7 +128,7 @@ def main():
 
                 action, _states = model.predict(obs)
                 obs, rewards, done, info = env.step(action)
-                print('action :', info)
+                #print('action :', info)
                 env.render('rgb_array')
 
 

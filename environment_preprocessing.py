@@ -3,6 +3,7 @@ from gym import spaces
 from features_classifier import StateFeatures, StateClassifier
 import torch
 import numpy as np
+from rnd_agent import *
 import pdb
 
 class OTCPreprocessing(gym.Wrapper):
@@ -27,6 +28,9 @@ class OTCPreprocessing(gym.Wrapper):
         #self.lives = 0  # Will need to be set by reset().
         self.action_reduction = action_reduction
         self.features = features
+        self.target_feature_batch = []
+        self.predict_feature_batch = []
+        self.n_step = 0
 
         if action_reduction:
                 # Reduction of the action space dimensionality wit only 8 basic possible movements
@@ -105,7 +109,7 @@ class OTCPreprocessing(gym.Wrapper):
             class_observation = torch.from_numpy(np.array(observation)[None]).to(device)
             features = clasificador(class_observation).detach().cpu().numpy()[0]#Change the boolean array to a binary array (length 11)
             features = features > 0
-            features = [0 if features[i] == False else 1 for i in range(len(features))]
+            features = [0 if features[i] is False else 255 for i in range(len(features))]#White pixel if the feature is; black if it's not
             #print('features :', features)
             observation = observation.reshape(21168) #Reshape the observation to manage properly the observation space
             #features = features.reshape(11,1)
@@ -164,11 +168,11 @@ class OTCPreprocessing(gym.Wrapper):
         else:
             action = self.actions[actionInput]
 
-
+        self.n_step += 1
         #print('action : ', action)
         #print('actionInput : ', actionInput)
 
-        observation, reward, game_over, info = self.env.step(actionInput)
+        observation, extrinsic_reward, game_over, info = self.env.step(actionInput)
         self.game_over = game_over
         # if(len(observation.shape)> 2):
         #     observation = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
@@ -184,17 +188,56 @@ class OTCPreprocessing(gym.Wrapper):
             class_observation = torch.from_numpy(np.array(observation)[None]).to(device)
             features = clasificador(class_observation).detach().cpu().numpy()[0]#Change the boolean array to a binary array (length 11)
             features = features > 0
-            features = [0 if features[i] == False else 1 for i in range(len(features))]
+            features = [0 if features[i] is False else 255 for i in range(len(features))] #White pixel if the feature is; black if it's not
             #print('features :', features)
-            observation = observation.reshape(21168) #Reshape the observation to manage properly the observation space
-            #features = features.reshape (11,1)
-            #pdb.set_trace()
-            observation = np.append(observation, features)  #Add the features array as part of the observation
-            #observation = observation[:, 0]
+
+
+            if args.rnd:
+                agent = RNDAgent()
+                rnd_observation = np.moveaxis(observation, 2, 0)
+                #print('rnd observation shape 1:', rnd_observation.shape)
+                rnd_observation = np.array([rnd_observation])
+                #print('rnd observation shape 2:', rnd_observation.shape)
+                predict_feature, target_feature = agent.rnd.forward(rnd_observation)
+                predict_feature, target_feature = predict_feature.tolist(), target_feature.tolist()
+                intrinsic_reward = agent.intrinsic_reward(rnd_observation)
+                print('nstep:', self.n_step)
+                cond = self.target_feature_batch
+                if not cond:
+                    self.target_feature_batch = [target_feature]
+                    self.predict_feature_batch = [predict_feature]
+                    print('List is empty')
+                    #pass #Implement the error
+
+                else:
+                    print('Entra en el batch')
+                    self.target_feature_batch.append(target_feature)
+                    self.predict_feature_batch.append(predict_feature)
+                    #print('Batchs actualizados: ', self.target_feature_batch, self.predict_feature_batch)
+                    print('Shapes of the lists: ', np.array(self.predict_feature_batch).shape,
+                          np.array(self.target_feature_batch).shape)
+
+                if (self.n_step % args.rnd_batch_size) == 0:
+                    print('Training rnd')
+                    agent.train_rnd(self.predict_feature_batch, self.target_feature_batch)
+                    self.predict_feature_batch = []
+                    self.target_feature_batch = []
+
+                reward = extrinsic_reward + intrinsic_reward
+
+            else:
+                reward = extrinsic_reward
+
+            observation = observation.reshape(21168)  # Reshape the observation to manage properly the observation space
+            # features = features.reshape (11,1)
+            # pdb.set_trace()
+            observation = np.append(observation, features)  # Add the features array as part of the observation
+            # observation = observation[:, 0]
             # print('observation : ', observation[:])
             # print('observation shape', observation.shape)
 
         return observation, reward, game_over, info
+
 
 
 
