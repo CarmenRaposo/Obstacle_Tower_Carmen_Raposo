@@ -70,21 +70,31 @@ def main():
 
             seed = random.seed(0)
 
-            #If Generalized Advantage Estimator is used
-            if args.use_gae:
+            if args.pretrained_model:
 
-                model = PPO2(MlpPolicy, env, n_steps=args.num_steps, verbose=1, tensorboard_log=args.tensorboard_logdir,
-                             cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
-                             vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
-                             gamma=args.gamma, lam=args.gae_lambda, noptepochs=args.ppo_epoch, seed=seed)
+                t = 300000
 
-            #If Generalized Advantage Estimator is not used
+                model = PPO2.load(args.pretrained_model, env=env, tensorboard_log=args.tensorboard_logdir)
+
             else:
 
-                model = PPO2(MlpPolicy, env, n_steps=args.num_steps, verbose=1, tensorboard_log=args.tensorboard_logdir,
-                             cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
-                             vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
-                             gamma=args.gamma, noptepochs=args.ppo_epoch, seed=seed)
+                t = 0
+
+                #If Generalized Advantage Estimator is used
+                if args.use_gae:
+
+                    model = PPO2(MlpPolicy, env, n_steps=args.num_steps, verbose=1, tensorboard_log=args.tensorboard_logdir,
+                                 cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
+                                 vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
+                                 gamma=args.gamma, lam=args.gae_lambda, noptepochs=args.ppo_epoch, seed=seed)
+
+                #If Generalized Advantage Estimator is not used
+                else:
+
+                    model = PPO2(MlpPolicy, env, n_steps=args.num_steps, verbose=1, tensorboard_log=args.tensorboard_logdir,
+                                 cliprange=args.clip_param, learning_rate=args.lr, ent_coef=args.entropy_coef,
+                                 vf_coef=args.value_loss_coef, max_grad_norm=args.max_grad_norm,
+                                 gamma=args.gamma, noptepochs=args.ppo_epoch, seed=seed)
         else:
 
             model = PPO2.load(args.pretrained_model, env=env)
@@ -103,7 +113,6 @@ def main():
         myfile.close()
 
         if not args.test:
-            t = 0
             while t < args.num_env_steps:
                 #TRAIN MODEL
                 if t == 0:

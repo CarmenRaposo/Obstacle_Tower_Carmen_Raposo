@@ -44,11 +44,12 @@ def test(T, model, global_path, evaluate=False, realtime=True, env=None, i=None,
                 done = False
 
             next_action, next_state = model.predict(state)
-            state, reward, done, _ = env.step(next_action)  # Step
+            state, reward, done, info = env.step(next_action)  # Step
             reward_sum += reward
-            if reward > 0.99:
-                floors_sum += 1
-
+            # if reward > 0.99:
+            #     floors_sum += 1
+            info = info[0]
+            floors_sum = info['current_floor']
             if done:
                 T_rewards.append(reward_sum)
                 T_floors.append(floors_sum)

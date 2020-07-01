@@ -67,7 +67,7 @@ def otc_arg_parser():
     parser.add_argument(
         '--entropy-coef',
         type=float,
-        default=0.001,
+        default=0.01,
         #default=0.001,
         help='entropy term coefficient (default: 0.01)')
     parser.add_argument(
@@ -148,7 +148,7 @@ def otc_arg_parser():
         help='environment to train on (default: PongNoFrameskip-v4)')
     parser.add_argument(
         '--log-dir',
-        default='./results/train_features/' + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + '/',
+        default='./results/RND/' + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + '/',
         help='directory to save agent logs (default: /tmp/gym)')
     parser.add_argument(
         '--save-dir',
@@ -178,11 +178,11 @@ def otc_arg_parser():
         help='use a linear schedule on the learning rate')
     parser.add_argument(
         '--tensorboard-logdir',
-        default="./results/train_features/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/tensorboard/",
+        default="./results/RND/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/tensorboard/",
         help='dir of the tensorboard logs')
     parser.add_argument(
         '--results-dir',
-        default="./results/train_features/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/model/",
+        default="./results/RND/" + datetime.now().strftime("%B-%d-%Y_%H_%M%p") + "/model/",
         help="dir of the results evaluation logs")
     parser.add_argument(
         '--training-name',
@@ -205,7 +205,7 @@ def otc_arg_parser():
     )
     parser.add_argument(
         '--rnd-batch-size',
-        default=10,
+        default=128,
         help='Horizon of training of RND predictor network'
     )
 

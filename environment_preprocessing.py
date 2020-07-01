@@ -28,8 +28,8 @@ class OTCPreprocessing(gym.Wrapper):
         #self.lives = 0  # Will need to be set by reset().
         self.action_reduction = action_reduction
         self.features = features
-        self.target_feature_batch = []
-        self.predict_feature_batch = []
+        self.target_feature_batch = None
+        self.predict_feature_batch = None
         self.n_step = 0
 
         if action_reduction:
@@ -179,6 +179,9 @@ class OTCPreprocessing(gym.Wrapper):
         info['actual_action'] = actionInput
         info['actual_inner_action'] = action
 
+        # print('info', info)
+        # print('info[current_floor]', info['current_floor'])
+
         if self.features:
             device = torch.device('cuda')
             clasificador = StateClassifier()
@@ -192,49 +195,53 @@ class OTCPreprocessing(gym.Wrapper):
             #print('features :', features)
 
 
-            if args.rnd:
-                agent = RNDAgent()
-                rnd_observation = np.moveaxis(observation, 2, 0)
-                #print('rnd observation shape 1:', rnd_observation.shape)
-                rnd_observation = np.array([rnd_observation])
-                #print('rnd observation shape 2:', rnd_observation.shape)
-                predict_feature, target_feature = agent.rnd.forward(rnd_observation)
-                predict_feature, target_feature = predict_feature.tolist(), target_feature.tolist()
-                intrinsic_reward = agent.intrinsic_reward(rnd_observation)
-                print('nstep:', self.n_step)
-                cond = self.target_feature_batch
-                if not cond:
-                    self.target_feature_batch = [target_feature]
-                    self.predict_feature_batch = [predict_feature]
-                    print('List is empty')
-                    #pass #Implement the error
-
-                else:
-                    print('Entra en el batch')
-                    self.target_feature_batch.append(target_feature)
-                    self.predict_feature_batch.append(predict_feature)
-                    #print('Batchs actualizados: ', self.target_feature_batch, self.predict_feature_batch)
-                    print('Shapes of the lists: ', np.array(self.predict_feature_batch).shape,
-                          np.array(self.target_feature_batch).shape)
-
-                if (self.n_step % args.rnd_batch_size) == 0:
-                    print('Training rnd')
-                    agent.train_rnd(self.predict_feature_batch, self.target_feature_batch)
-                    self.predict_feature_batch = []
-                    self.target_feature_batch = []
-
-                reward = extrinsic_reward + intrinsic_reward
+        if args.rnd:
+            agent = RNDAgent()
+            rnd_observation = np.moveaxis(observation, 2, 0)
+            #print('rnd observation shape 1:', rnd_observation.shape)
+            rnd_observation = np.array([rnd_observation])
+            #print('rnd observation shape 2:', rnd_observation.shape)
+            predict_feature, target_feature = agent.rnd.forward(rnd_observation)
+            predict_feature, target_feature, intrinsic_reward = agent.intrinsic_reward(rnd_observation)
+            #predict_feature, target_feature = predict_feature.tolist(), target_feature.tolist()
+            intrinsic_reward = intrinsic_reward.tolist()
+            #print('nstep:', self.n_step)
+            cond = self.target_feature_batch
+            if cond is None:
+                self.target_feature_batch = [target_feature]
+                self.predict_feature_batch = [predict_feature]
+                #print('List is empty')
+                #pass #Implement the error
 
             else:
-                reward = extrinsic_reward
+                #print('Entra en el batch')
+                self.target_feature_batch.append(target_feature)
+                self.predict_feature_batch.append(predict_feature)
+                #print('Batchs actualizados: ', self.target_feature_batch, self.predict_feature_batch)
+                # print('Shapes of the lists: ', np.array(self.predict_feature_batch).shape,
+                #       np.array(self.target_feature_batch).shape)
 
-            observation = observation.reshape(21168)  # Reshape the observation to manage properly the observation space
-            # features = features.reshape (11,1)
-            # pdb.set_trace()
-            observation = np.append(observation, features)  # Add the features array as part of the observation
-            # observation = observation[:, 0]
-            # print('observation : ', observation[:])
-            # print('observation shape', observation.shape)
+            if (self.n_step % args.rnd_batch_size) == 0:
+                #print('Training rnd step :', self.n_step)
+                agent.train_rnd(self.predict_feature_batch, self.target_feature_batch)
+                self.predict_feature_batch = []
+                self.target_feature_batch = []
+
+
+            #print('extrinsic and intrisic reward: ', extrinsic_reward, intrinsic_reward[0])
+            reward = extrinsic_reward + intrinsic_reward[0]
+            #print('reward :', reward)
+
+        else:
+            reward = extrinsic_reward
+
+        observation = observation.reshape(21168)  # Reshape the observation to manage properly the observation space
+        # features = features.reshape (11,1)
+        # pdb.set_trace()
+        observation = np.append(observation, features)  # Add the features array as part of the observation
+        # observation = observation[:, 0]
+        # print('observation : ', observation[:])
+        # print('observation shape', observation.shape)
 
         return observation, reward, game_over, info
 

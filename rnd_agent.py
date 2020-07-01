@@ -45,7 +45,7 @@ class RNDModel(nn.Module):
             nn.Linear(feature_output, 512),
             nn.ReLU(),
             nn.Linear(512, 512),
-            nn.ReLU(),
+            nn.Sigmoid(),
             nn.Linear(512, 512)
         )
 
@@ -69,7 +69,12 @@ class RNDModel(nn.Module):
                 stride=1),
             nn.LeakyReLU(),
             Flatten(),
-            nn.Linear(feature_output, 512)
+            nn.Linear(feature_output, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.Sigmoid(),
+            nn.Linear(512, 512)
+            #nn.Linear(feature_output, 512)
         )
 
         for p in self.modules():
@@ -100,33 +105,16 @@ class RNDAgent:
 
     def intrinsic_reward(self, next_obs):
         predict_feature, target_feature = self.rnd.forward(next_obs)
-        intrinsic_reward = (target_feature - predict_feature).pow(2).sum(1) / 2
-        #self.train_rnd(predict_feature, target_feature)
-        return intrinsic_reward
+        intrinsic_reward = (target_feature - predict_feature).pow(2).sum(1) / 512
+        return predict_feature, target_feature, intrinsic_reward
 
     def train_rnd(self, predict_feature_batch, target_feature_batch):
         update_proportion = 0.25
-        total_list = list(zip(predict_feature_batch, target_feature_batch))
-        random.shuffle(total_list)
-        index = np.int(np.floor(update_proportion*args.rnd_batch_size))
-        print ('indice :', index)
-        predict_feature_batch, target_feature_batch = zip(*total_list)
-        predict_feature_batch = predict_feature_batch[:index]
-        target_feature_batch = target_feature_batch[:index]
-        predict_feature_batch, target_feature_batch = torch.FloatTensor(predict_feature_batch).to(self.rnd.device), \
-                                                      torch.FloatTensor(target_feature_batch).to(self.rnd.device)
-        print('predict_feature_batch :', predict_feature_batch)
-        print('target_feature_batch :', target_feature_batch)
-        predict_feature_batch, target_feature_batch = torch.squeeze(predict_feature_batch), torch.squeeze(target_feature_batch)
-        print('predict_feature_batch after squeeze:', predict_feature_batch)
-        print('target_feature_batch after squeeze:', target_feature_batch)
         forward_mse = nn.MSELoss(reduction='none')
-        # forward_loss = forward_mse(predict_feature_batch, target_feature_batch.detach()).mean(-1)
-        forward_loss = forward_mse(predict_feature_batch, target_feature_batch).mean(-1)
-        print('forward loss: ', forward_loss)
-        # mask = torch.rand(len(forward_loss)).to(self.rnd.device)
-        # mask = (mask < update_proportion).type(torch.FloatTensor).to(self.rnd.device)
-        # forward_loss = (forward_loss * mask).sum() / torch.max(mask.sum(), torch.FloatTensor([1]).to(self.rnd.device))
+        forward_loss = forward_mse(predict_feature_batch[0], target_feature_batch[0].detach()).mean(-1)
+        mask = torch.rand(len(forward_loss)).to(self.rnd.device)
+        mask = (mask < update_proportion).type(torch.FloatTensor).to(self.rnd.device)
+        forward_loss = (forward_loss * mask).sum() / torch.max(mask.sum(), torch.FloatTensor([1]).to(self.rnd.device))
 
         self.optimizer.zero_grad()
         forward_loss.backward()

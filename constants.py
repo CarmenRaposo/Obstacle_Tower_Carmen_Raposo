@@ -10,6 +10,11 @@ if args.study:
 # GLOBAL_PATH = args.results_dir + args.training_name + "/"
 GLOBAL_PATH = args.results_dir
 
+if args.pretrained_model:
+    args.tensorboard_logdir = "/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/python_scripts/Obstacle_Tower_Carmen_Raposo/results/RND/June-30-2020_23_26PM/tensorboard/"
+    GLOBAL_PATH = "/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/python_scripts/Obstacle_Tower_Carmen_Raposo/results/RND/June-30-2020_23_26PM/model/"
+    args.log_dir = "/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/python_scripts/Obstacle_Tower_Carmen_Raposo/results/RND/June-30-2020_23_26PM/"
+
 OBSTACLE_TOWER_PATH = '/home/home/Data/Carmen/py_workspace/ObstacleTower_v3/ObstacleTower-v3.1/obstacletower.x86_64'
 
 IMAGE_SIZE = 84
