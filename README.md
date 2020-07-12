@@ -80,7 +80,7 @@ python main.py --features --rnd
 In order to test how are previous trained agents work, we can use the pretrained models as follows:
 
 ```
-python main.py --pretrained model [pretrained model file's route] --features --rnd
+python main.py --test --pretrained model [pretrained model file's route] --features --rnd
 ```
 
 ## Built With
